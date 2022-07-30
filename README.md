@@ -110,7 +110,7 @@ make install
 ```shell
 curl https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/genesis.json > ~/.stchaind/config/genesis.json
 curl https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/config.toml > ~/.stchaind/config/config.toml
-curl https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4/addrbook.json?raw=true > ~/.stchaind/config/addrbook.json
+curl https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4/addrbook.json > ~/.stchaind/config/addrbook.json
 ```
 
 ## Servis Dosyası Oluşturma
