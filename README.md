@@ -47,12 +47,6 @@ echo "export WALLET=$WALLET" >> $HOME/.bash_profile
 echo "export CHAIN_ID=tropos-4" >> $HOME/.bash_profile
 source $HOME/.bash_profile
 ```
----
-echo "export NODENAME=KolTigin"  >> $HOME/.bash_profile
-echo "export WALLET=KolTigin" >> $HOME/.bash_profile
-echo "export CHAIN_ID=tropos-4" >> $HOME/.bash_profile
-source $HOME/.bash_profile
----
 
 ## stcahind Binary Dosyalarını Yükleme
 ```shell
