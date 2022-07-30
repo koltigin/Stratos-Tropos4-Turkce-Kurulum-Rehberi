@@ -108,15 +108,9 @@ make install
 
 ## Genesis, Config ve Addrbook Dosyalarının İndirilmesi
 ```shell
-wget https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/genesis.json
-wget https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/config.toml
-wget -O $HOME/.stchaind/config/addrbook.json "https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4/addrbook.json?raw=true"
-```
-
-## Genesis ve Config  Dosyalarının .stchaind Dizinine Taşınması
-```shell
-mv config.toml $HOME/.stchaind/config/
-mv genesis.json  $HOME/.stchaind/config/
+curl https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/genesis.json > ~/.stchaind/config/genesis.json
+curl https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/config.toml > ~/.stchaind/config/config.toml
+curl https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4/addrbook.json?raw=true > ~/.stchaind/config/addrbook.json
 ```
 
 ## Servis Dosyası Oluşturma
