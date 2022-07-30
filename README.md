@@ -22,22 +22,6 @@ apt update && apt upgrade -y
 apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop screen -y < "/dev/null"
 ```
 
-## Go Kurulumu
-```shell
-ver="1.18.3"
-wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
-rm -rf /usr/local/go
-tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
-rm -rf "go$ver.linux-amd64.tar.gz"
-echo 'export GOROOT=/usr/local/go' >> $HOME/.bash_profile
-echo 'export GOPATH=$HOME/go' >> $HOME/.bash_profile
-echo 'export GO111MODULE=on' >> $HOME/.bash_profile
-echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile
-source $HOME/.bash_profile
-go version
-go mod tidy
-```
-
 ## Değişkenleri Yükleme
 aşağıda değiştirmeniz gereken yerleri yazıyorum.
 * $NODENAME validator adınız
@@ -79,6 +63,22 @@ Aşağıdaki gibi bir çıktı aldıysanız sorun yoktur.
 chmod +x stchaind
 ```
 
+## Go Kurulumu
+```shell
+ver="1.18.4"
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
+rm -rf /usr/local/go
+tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
+rm -rf "go$ver.linux-amd64.tar.gz"
+echo 'export GOROOT=/usr/local/go' >> $HOME/.bash_profile
+echo 'export GOPATH=$HOME/go' >> $HOME/.bash_profile
+echo 'export GO111MODULE=on' >> $HOME/.bash_profile
+echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile
+source $HOME/.bash_profile
+go version
+go mod tidy
+```
+
 ## Stratos Cahin Kurulumu
 ```shell
 cd $HOME
@@ -115,8 +115,7 @@ curl https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4
 
 ## Servis Dosyası Oluşturma
 ```shell
-tee <<EOF >/dev/null /etc/systemd/system/stratosd.service 
-
+tee <<EOF >/dev/null /etc/systemd/system/stratosd.service
 [Unit]
 Description=Stratos Node
 After=network.target
@@ -129,7 +128,11 @@ LimitNOFILE=65535
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
+```
+
+## Journald Dosyası Oluşturma
+```shell
+tee <<EOF >/dev/null /etc/systemd/journald.conf
 Storage=persistent
 EOF
 ```
