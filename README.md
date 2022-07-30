@@ -189,6 +189,7 @@ stchaind status 2>&1 | jq .SyncInfo
    'details'  kendiniz hakkında bilgiler verebilir ya da `Rues Community Supporter` yazabilirsiniz.
    'website'  Varsa bir siteniz yazabilirsiniz ya da `httpsforum.rues.info` olarak bırakabilirsiniz.
    'security-contact'  E-posta adresiniz.
+   '1 stos = 1000000000 ustos' yani 1 stos 1 milyar ustos'a eşittir. Ona göre 
 ```shell 
 stchaind tx staking create-validator \
  --commission-max-change-rate=0.01 \
