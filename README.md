@@ -211,7 +211,7 @@ stchaind tx staking create-validator \
 ## Validator Kontrol
 [Explorer](https://explorer-tropos.thestratos.org/)
 
-## DAHA FAZLA SORUNUZ VARSA STRIDE TÜRKİYE TELEGRAM GRUBU
+## DAHA FAZLA SORUNUZ VARSA STRATOS TÜRKİYE TELEGRAM GRUBU
 
 [Stratos Türkiye Telegram Sayfası](https://t.me/StratosTurkish)
 
