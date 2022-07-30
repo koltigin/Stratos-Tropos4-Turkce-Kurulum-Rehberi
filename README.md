@@ -6,6 +6,12 @@
 * 8GB RAM
 * 200GB SSD
 
+## Root Yetkisi Alma Ve Root Dizinine Geçme
+```shell
+sudo su
+cd /root
+```
+
 ## Sistemi Güncelleme
 ```shell
 apt update && apt upgrade -y
