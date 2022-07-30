@@ -1,243 +1,346 @@
-# stratos-chain-testnet
-stratos block testnet genesis and config
+# Stratos Tropos-4 Kurulum Rehberi 
+![image](https://user-images.githubusercontent.com/102043225/181925323-87e8650a-b88e-4d04-adec-a294e37a69f0.png)
 
-## Prepare environment to run node
+##  Sistem Gereksinimleri
+* 4vCPU
+* 8GB RAM
+* 200GB SSD
 
-### 0. Create user account(optional)
-To create a separated and more secure environment, it is recommended to create a separated user account to run node.
+## Sistemi Güncelleme
+```shell
+apt update && apt upgrade -y
 ```
-sudo adduser stratos --home /home/stratos
+
+## Gerekli Kütüphanelerin Kurulması
+```shell
+apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmainutils htop screen -y < "/dev/null"
 ```
-Once `user` is created, login the system using *stratos* account and proceed with installation steps in context of that user
 
-### 1. Download release binary files
+## Go Kurulumu
+```shell
+ver="1.18.3"
+wget "https://golang.org/dl/go$ver.linux-amd64.tar.gz"
+rm -rf /usr/local/go
+tar -C /usr/local -xzf "go$ver.linux-amd64.tar.gz"
+rm -rf "go$ver.linux-amd64.tar.gz"
+echo 'export GOROOT=/usr/local/go' >> $HOME/.bash_profile
+echo 'export GOPATH=$HOME/go' >> $HOME/.bash_profile
+echo 'export GO111MODULE=on' >> $HOME/.bash_profile
+echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile
+source $HOME/.bash_profile
+go version
+```
 
-#### Get `stchaind`  binary files
+## Değişkenleri Yükleme
+aşağıda değiştirmeniz gereken yerleri yazıyorum.
+* '$NODENAME' validator adınız
+* '$WALLET' cüzdan adınız
+```shell
+echo "export NODENAME=$NODENAME"  >> $HOME/.bash_profile
+echo "export WALLET=$WALLET" >> $HOME/.bash_profile
+echo "export CHAIN_ID=tropos-4" >> $HOME/.bash_profile
+source $HOME/.bash_profile
+```
+---
+echo "export NODENAME=KolTigin"  >> $HOME/.bash_profile
+echo "export WALLET=KolTigin" >> $HOME/.bash_profile
+echo "export CHAIN_ID=tropos-4" >> $HOME/.bash_profile
+source $HOME/.bash_profile
+---
 
-```bash
+## stcahind Binary Dosyalarını Yükleme
+```shell
 cd $HOME
 wget https://github.com/stratosnet/stratos-chain/releases/download/v0.8.0/stchaind
 ```
 
-> These binary files are built using linux amd64, so if you are preparing run a node on different kernel, please follow step 1.1 to build binaries for your machine
->
-> For ease of use, we recommend you save these files in your `$HOME` folder. In the following, we suppose you are in the `$HOME` folder.
-
-- Check the granularity
-```bash
+## stcahind Ayrıntılarını Kontrol Etme
+```shell
 md5sum stchain*
-
-## expect output 
-## 834c713f15752e9f68489a43bac6a180 stchaind
 ```
 
-- Add `execute` permission to the binary downloaded
-```bash
+Aşağıdaki gibi bir çıktı aldıysanız sorun yoktur.
+
+```shell
+834c713f15752e9f68489a43bac6a180 stchaind
+```
+
+## İndirilen Binary Dosyasına Yürütme İzni Verme
+```shell
 chmod +x stchaind
 ```
 
-### 1.1 Compile the binary with source code
-Make sure you have Go 1.16+ installed ([link](https://golang.org/doc/install)).
-
-```bash
+## Stratos Cahin Kurulumu
+```shell
+cd $HOME
 git clone https://github.com/stratosnet/stratos-chain.git
 cd stratos-chain
 git checkout v0.8.0
 make build
-```
-The binary file `stchaind` can be found in `build` folder. Then, move these two binary files to `$HOME`
-
-```shell
 mv build/stchaind ./
-```
-
-#### Install the binary files to `$GOPATH/bin`
-```bash
 make install
 ```
 
-### 2. Get the `genesis` and `config` file
-#### Initialize the node
-```bash
-./stchaind init "<node name you prefer>"
-
-# ignore the output since you need to download the genesis file 
+## Uygulamayı Başlatma
+```shell
+./stchaind init $NODENAME
 ```
 
-#### Download `genesis.json` and `config.toml` files
-```bash
+## Genesis, Config ve Addrbook Dosyalarının İndirilmesi
+```shell
 wget https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/genesis.json
 wget https://raw.githubusercontent.com/stratosnet/stratos-chain-testnet/main/config.toml
+wget -O $HOME/.stchaind/config/addrbook.json "https://github.com/mmc6185/node-testnets/blob/main/stratos/stratos-tropos-4/addrbook.json?raw=true"
 ```
 
-#### Change `moniker`(optional if you don't want to become validator)
-In `config.toml` file, at Line #16, there is a “moniker” field. Change it to any name you like. It’s your node name on the network.
-```bash
-# A custom human readable name for this node
-moniker = "<node name you prefer>"
+## Genesis ve Config  Dosyalarının .stchaind Dizinine Taşınması
+```shell
+mv config.toml $HOME/.stchaind/config/
+mv genesis.json  $HOME/.stchaind/config/
 ```
 
-#### Move the `config.toml` and `genesis.json` files to `.stchaind/config/` folder
-```bash
-mv config.toml .stchaind/config/
-mv genesis.json .stchaind/config/
-```
-> By default, the two binary executable files `stchaind` as well as the directory `.stchaind` have been saved or created in the `$HOME` folder. The `.stchaind` folder contains the node's configurations and data.
+## Servis Dosyası Oluşturma
+```shell
+tee <<EOF >/dev/null /etc/systemd/system/stratosd.service 
 
-### 3. Run the node
-
-There are three ways to run your Stratos-chain full-node. Please choose ONE of them to start the node.
-
-- `stchaind start` command
-
-    ```shell
-    # Make sure we are inside the home directory
-    cd $HOME
-    
-    # run your node
-    ./stchaind start
-    
-    # Use `Ctrl+c` to stop the node.
-    ```
-
-- Run node in background
-
-    ```shell
-    # Make sure we are inside the home directory
-    cd $HOME
-    
-    # run your node in backend
-    ./stchaind start 2>&1 >> chain.log & 
-    ```
-  Use an editor to check your node log at `chain.log`
-
-  Use the following Linux Command to stop your node.
-    ```shell
-    pkill stchaind
-    ```
-- Run node as a service
-
-  All below steps require root privileges
-
-    - Create the service file
-      Create the `/lib/systemd/system/stratos.service` file with the following content
-
-      ```shell
-      [Unit]
-      Description=Stratos Chain Node
-      After=network-online.target
-  
-      [Service]
-      User=stratos
-      ExecStart=/home/stratos/stchaind start --home=/home/stratos/.stchaind
-      Restart=on-failure
-      RestartSec=3
-      LimitNOFILE=8192
-  
-      [Install]
-      WantedBy=multi-user.target
-      ```
-      > In the [service] section
-      > - `User` is your system login username
-      > - `ExecStart` designates the absolute path to the binary executable `stchaind`
-      > - `--home` is the absolute path to your node folder.
-      > - We used the default values for these variables. If you use a different username, group or folder to hold your node data instead of the default values, please modify these values according to your situations. Make sure the above values are correct.
-
-    - Start your service
-      Once you have successfully created the service, you need to enable and start it by running
-
-            ```shell
-      systemctl daemon-reload
-      systemctl enable stratos.service
-      systemctl start stratos.service
-      ```
-  - Service operations
-
-      - Check the service status
-
-        ```shell
-        systemctl status stratos.service
-        ```
-      - Check service log
-
-        ```shell
-        journalctl -u stratos.service -f 
-    
-        # exit with ctrl+c
-        ```
-
-      - Stop the service
-
-        ```shell
-        systemctl stop stratos.service
-        ```
-
-## Operations
-Once the node finishes catch-up, you can operate the node for various transactions(tx) and queries. You can find all the documents [here](https://github.com/stratosnet/stratos-chain/wiki).
-
-In the following, some of commonly-used operations are listed.
-
-### Create an account
-
-```bash
-./stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test  <your wallet name>
+[Unit]
+Description=Stratos Node
+After=network.target
+[Service]
+User=$USER
+Type=simple
+ExecStart=$(which stchaind) start
+Restart=on-failure
+LimitNOFILE=65535
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo tee <<EOF >/dev/null /etc/systemd/journald.conf
+Storage=persistent
+EOF
 ```
 
-Example
-```bash
-./stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test  wallet1
-```
-> After executed the above command, a `.stchaind` will be created in your `$HOME` folder.
-
-### `Faucet`
-Faucet will be available at https://faucet-tropos.thestratos.org/ to get test tokens
-
-```bash
-curl --header "Content-Type: application/json" --request POST --data '{"denom":"ustos","address":"put_your_wallet_address_here"} ' https://faucet-tropos.thestratos.org/credit
+## Servisi Başlatma
+```shell
+systemctl restart systemd-journald
+systemctl daemon-reload
+systemctl enable stratosd
+systemctl restart stratosd
 ```
 
-> * 1 stos = 1000000000 ustos
-> * By default, faucet will send a certain amount of tokens to the given wallet address
-> * maximum 3 faucet requests to arbitrary wallet address from a single IP within an hour
-> * maximum 1 faucet request to a fixed wallet address within an hour
+## Logları Kontrol Etme
+```shell
+journalctl -u stratosd -f -o cat
+```  
 
-Check balance (you need to wait for your node catching up with the network)
-```bash
-./stchaind query account <your wallet address>
+## Cüzdan Oluşturma
+
+### Yeni Cüzdan Oluşturma
+`$WALLET` bölümünü değiştirmiyoruz kurulumun başında cüzdanımıza isim belirledik.
+```shell 
+stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test $WALLET
+```  
+
+### Var Olan Cüzdanı İçeri Aktarma
+```shell
+stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test $WALLET --recover
 ```
 
-Check node status
-```bash
-./stchaind status
+* BU AŞAMADAN SONRA NODE'UMUZUN EŞLEŞMESİNİ BEKLİYORUZ.
+* EŞLEŞMEYİ BEKLERKEN TOKEN ALALIM
+
+## Faucet / Token Alma
+```shell
+curl --header "Content-Type: application/json" --request POST --data '{"denom":"ustos","address":"CUZDAN_ADRESINIZ"} ' https://faucet-tropos.thestratos.org/credit
+```shell
+
+
+## Cüzdan Bakiyesini Kontrol Etme
+```shell
+stchaind query bank balances CUZDAN_ADRESINIZ 
+```  
+
+## Senkronizasyonu Kontrol Etme
+`false` çıktısı almaldıkça bir sonraki yani validator oluşturma adımına geçmiyoruz.
+```shell
+stchaind status 2&1  jq .SyncInfo
 ```
 
-### Your first tx - `send` transaction
+## Validator Oluşturma
+ Aşağıdaki komutta aşağıda berlittiğim yerler dışında bir değişikli yapmanız gerekmez;
+   'identity'  buraya `httpskeybase.io` sitesine üye olarak size verilen kimlik numaranızı yazıyorsunuz.
+   'details'  kendiniz hakkında bilgiler verebilir ya da `Rues Community Supporter` yazabilirsiniz.
+   'website'  Varsa bir siteniz yazabilirsiniz ya da `httpsforum.rues.info` olarak bırakabilirsiniz.
+   'security-contact'  E-posta adresiniz.
+```shell 
+stchaind tx staking create-validator \
+ --commission-max-change-rate=0.01 \
+ --commission-max-rate=0.20 \
+ --commission-rate=0.10 \
+ --amount 14500000000ustos \
+ --pubkey=$(stchaind tendermint show-validator) \
+ --moniker=$NODENAME \
+ --chain-id=$CHAIN_ID \
+ --details=Rues Community Supporter \
+ --security-contact=E-POSTANIZ \
+ --website=httpsforum.rues.info \
+ --identity=XXXX1111XXXX1111 \
+ --min-self-delegation=1 \
+ --from=$WALLET \
+ --gas=auto -y
+ ```  
 
-```bash
-./stchaind tx send <from address> <to address> <amount> --keyring-backend=<keyring's backend> --chain-id=<current chain-id>
+
+## Validator Kontrol
+[Explorer](https://explorer-tropos.thestratos.org/)
+
+## DAHA FAZLA SORUNUZ VARSA STRIDE TÜRKİYE TELEGRAM GRUBU
+
+[Stratos Türkiye Telegram Sayfası](https://t.me/StratosTurkish)
+
+## FAYDALI KOMUTLAR
+
+### Logları Kontrol Etme 
+```shell
+journalctl -fu stchaind -o cat
 ```
 
-```bash
-$ ./stchaind tx send st1qzx8na3ujlaxstgcyguudaecr6mpsemflhhzua st1jvf660xagmzuzyqyqu3w27sj0ragn7qetnwmyr 100000000000ustos --keyring-backend=test --chain-id=stratos-testnet-3 --gas=auto
-
-# then input y for the pop up to confirm send
+### Sistemi Başlatma
+```shell
+systemctl start stchaind
 ```
-> * In testing phase, --keyring-backend="test"
-> * In testing phase, the current `chain-id` may change when updating. When it is applied, user needs to point out `current chain-id` which can be found on [this page](https://explorer-tropos.thestratos.org/), right next to the search bar at the top of the page.
 
-### Becoming a validator(optional)
-After the following steps have been done, Any participant in the network can signal that they want to become a validator. Please refer to [How to Become a Validator](https://github.com/stratosnet/stratos-chain/wiki/How-to-Become-a-Validator) for more details about validator creation, delegation as well as FAQ.
-- [x] download related files
-- [x] start your node to catch up to the latest block height(synchronization)
-- [x] create your Stratos Chain Wallet
-- [x] `Faucet` or `send` an amount of tokens to this wallet
+### Sistemi Durdurma
+```shell
+systemctl stop stchaind
+```
 
+### Sistemi Yeniden Başlatma
+```shell
+systemctl restart stchaind
+```
 
-## References
-* ['stchaind' Commands(Part1)](https://github.com/stratosnet/stratos-chain/wiki/Stratos-Chain-%60stchaind%60-Commands(Part1))
+### Node Senkronizasyon Durumu
+```shell
+stchaind status 2>&1 | jq .SyncInfo
+```
 
-* [stchaind' Commands(Part2)](https://github.com/stratosnet/stratos-chain/wiki/Stratos-Chain-%60stchaind%60-Commands(Part2))
+### Validator Bilgileri
+```shell
+stchaind status 2>&1 | jq .ValidatorInfo
+```
 
-* [REST APIs](https://github.com/stratosnet/stratos-chain/wiki/Stratos-Chain-REST-APIs)
+### Node Bilgileri
+```shell
+stchaind status 2>&1 | jq .NodeInfo
+```
 
-* [How to become a validator](https://github.com/stratosnet/stratos-chain/wiki/How-to-Become-a-Validator)
+### Node ID Öğrenme
+```shell
+stchaind tendermint show-node-id
+```
+
+### Node IP Adresini Öğrenme
+```shell
+curl icanhazip.com
+```
+
+### Peer Adresinizi Öğrenme
+```shell
+echo $(stchaind tendermint show-node-id)@$(curl ifconfig.me)16656
+```
+
+### Cüzdanların Listesine Bakma
+```shell
+stchaind keys list
+```
+
+### Cüzdanı İçeri Aktarma
+```shell
+stchaind keys add $WALLET --recover
+```
+
+### Cüzdanı Silme
+```shell
+stchaind keys delete CUZDAN_ADI
+```
+
+### Cüzdan Bakiyesine Bakma
+```shell
+stchaind query bank balances CUZDAN_ADRESI
+```
+
+### Bir Cüzdandan Diğer Bir Cüzdana Transfer Yapma
+```shell
+stchaind tx bank send CUZDAN_ADRESI GONDERILECEK_CUZDAN_ADRESI 100000000ustrd
+```
+
+### Proposal Oylamasına Katılma
+```shell
+stchaind tx gov vote 1 yes --from $WALLET --chain-id=CHAIN_ID 
+```
+
+### Validatore Stake Etme  Delegate Etme
+```shell
+stchaind tx staking delegate $VALOPER_ADDRESS 100000000utoi --from=$WALLET --chain-id=C$HAIN_ID  --gas=auto
+```
+
+### Mevcut Validatorden Diğer Validatore Stake Etme  Redelegate Etme
+```shell
+stchaind tx staking redelegate MevcutValidatorAdresi StakeEdilecekYeniValidatorAdresi 100000000ustrd --from=WALLET --chain-id=CHAIN_ID  --gas=auto
+```
+
+### Ödülleri Çekme
+```shell
+stchaind tx distribution withdraw-all-rewards --from=$WALLET --chain-id=CHAIN_ID  --gas=auto
+```
+
+### Komisyon Ödüllerini Çekme
+```shell
+stchaind tx distribution withdraw-rewards VALIDATOR_ADRESI --from=$WALLET --commission --chain-id=CHAIN_ID 
+```
+
+### Validator İsmini Değiştirme
+```shell
+stchaind tx staking edit-validator 
+--moniker=YENI_NODE_ADI 
+--chain-id=$CHAIN_ID  
+--from=$WALLET
+```
+
+### Validatoru Jail Durumundan Kurtarma 
+```shell
+stchaind tx slashing unjail 
+  --broadcast-mode=block 
+  --from=$WALLET 
+  --chain-id=$CHAIN_ID  
+  --gas=auto
+```
+
+### Node'u Tamamen Silme 
+```shell
+sudo systemctl stop stchaind && 
+sudo systemctl disable stchaind && 
+rm etc/systemd/system/stride.service && 
+systemctl daemon-reload && 
+cd $HOME && 
+rm -rf .stride stride && 
+rm -rf $(which stchaind)
+```
+
+### Hesaplar
+
+[Linktree](https://linktr.ee.mehmetkoltigin)
+
+[Twitter](https://twitter.com.mehmetkoltigin)
+
+### Komunite 
+[Forum Rues](https://forum.rues.infoindex.php)
+
+[Telegram Rues Announcement](https://t.meRuesAnnouncement)
+
+[Telegram Rues Chat](https://t.meRuesChat)
+
+[Telegram Rues Node](https://t.meRuesNode)
+
+[Telegram Rues Node Chat](https://t.meRuesNodeChat)
