@@ -35,6 +35,7 @@ echo 'export GO111MODULE=on' >> $HOME/.bash_profile
 echo 'export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin' >> $HOME/.bash_profile
 source $HOME/.bash_profile
 go version
+go mod tidy
 ```
 
 ## Değişkenleri Yükleme
@@ -85,6 +86,17 @@ git clone https://github.com/stratosnet/stratos-chain.git
 cd stratos-chain
 git checkout v0.8.0
 make build
+```
+
+## make build Kodundan Sonra Hata Alırsanız
+```shell
+go mod tidy
+apt update
+make build
+```
+
+## Binary Dosyalarını $GOPATH/bin Dizinine Yükleme
+```shell
 mv build/stchaind ./
 make install
 ```
