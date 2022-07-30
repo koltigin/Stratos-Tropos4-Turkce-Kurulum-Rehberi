@@ -169,7 +169,7 @@ stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test $WALLET -
 ## Faucet / Token Alma
 ```shell
 curl --header "Content-Type: application/json" --request POST --data '{"denom":"ustos","address":"CUZDAN_ADRESINIZ"} ' https://faucet-tropos.thestratos.org/credit
-```shell
+```
 
 
 ## Cüzdan Bakiyesini Kontrol Etme
@@ -180,7 +180,7 @@ stchaind query bank balances CUZDAN_ADRESINIZ
 ## Senkronizasyonu Kontrol Etme
 `false` çıktısı almaldıkça bir sonraki yani validator oluşturma adımına geçmiyoruz.
 ```shell
-stchaind status 2&1  jq .SyncInfo
+stchaind status 2>&1 | jq .SyncInfo
 ```
 
 ## Validator Oluşturma
