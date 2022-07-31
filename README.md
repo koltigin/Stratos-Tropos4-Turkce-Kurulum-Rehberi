@@ -24,8 +24,8 @@ apt install make clang pkg-config libssl-dev build-essential git jq ncdu bsdmain
 
 ## Değişkenleri Yükleme
 aşağıda değiştirmeniz gereken yerleri yazıyorum.
-* $NODENAME validator adınız
-* $WALLET cüzdan adınız
+* `$NODENAME` validator adınız
+* `$WALLET` cüzdan adınız
 ```shell
 echo "export NODENAME=$NODENAME"  >> $HOME/.bash_profile
 echo "export WALLET=$WALLET" >> $HOME/.bash_profile
