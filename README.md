@@ -270,17 +270,17 @@ echo $(stchaind tendermint show-node-id)@$(curl ifconfig.me)16656
 
 ### Cüzdanların Listesine Bakma
 ```shell
-stchaind keys list
+stchaind keys list --keyring-backend=test
 ```
 
 ### Cüzdanı İçeri Aktarma
 ```shell
-stchaind keys add $WALLET --recover
+stchaind keys add --hd-path "m/44'/606'/0'/0/0" --keyring-backend test $WALLET --recover
 ```
 
 ### Cüzdanı Silme
 ```shell
-stchaind keys delete CUZDAN_ADI
+stchaind keys delete --hd-path "m/44'/606'/0'/0/0" --keyring-backend test CUZDAN_ADI
 ```
 
 ### Cüzdan Bakiyesine Bakma
@@ -290,59 +290,62 @@ stchaind query bank balances CUZDAN_ADRESI
 
 ### Bir Cüzdandan Diğer Bir Cüzdana Transfer Yapma
 ```shell
-stchaind tx bank send CUZDAN_ADRESI GONDERILECEK_CUZDAN_ADRESI 100000000ustrd
+stchaind tx bank send CUZDAN_ADRESI CUZDAN_ADRESI 1000000000ustos --chain-id $CHAIN_ID --keyring-backend=test --gas=auto -y
 ```
 
 ### Proposal Oylamasına Katılma
 ```shell
-stchaind tx gov vote 1 yes --from $WALLET --chain-id=CHAIN_ID 
+stchaind tx gov vote 1 yes --from $WALLET --chain-id=CHAIN_ID --keyring-backend=test
 ```
 
 ### Validatore Stake Etme  Delegate Etme
 ```shell
-stchaind tx staking delegate $VALOPER_ADDRESS 100000000utoi --from=$WALLET --chain-id=C$HAIN_ID  --gas=auto
+stchaind tx staking delegate $VALOPER_ADDRESS 100000000utoi --from=$WALLET --chain-id=C$HAIN_ID --keyring-backend=test --gas=auto
 ```
 
 ### Mevcut Validatorden Diğer Validatore Stake Etme  Redelegate Etme
 ```shell
-stchaind tx staking redelegate MevcutValidatorAdresi StakeEdilecekYeniValidatorAdresi 100000000ustrd --from=WALLET --chain-id=CHAIN_ID  --gas=auto
+stchaind tx staking redelegate MevcutValidatorAdresi StakeEdilecekYeniValidatorAdresi 100000000ustos --from=WALLET --chain-id=CHAIN_ID --keyring-backend=test  --gas=auto
 ```
 
 ### Ödülleri Çekme
 ```shell
-stchaind tx distribution withdraw-all-rewards --from=$WALLET --chain-id=CHAIN_ID  --gas=auto
+stchaind tx distribution withdraw-all-rewards --from=$WALLET --chain-id=CHAIN_ID --keyring-backend=test  --gas=auto
 ```
 
 ### Komisyon Ödüllerini Çekme
 ```shell
-stchaind tx distribution withdraw-rewards VALIDATOR_ADRESI --from=$WALLET --commission --chain-id=CHAIN_ID 
+stchaind tx distribution withdraw-rewards VALIDATOR_ADRESI --from=$WALLET --commission --chain-id=CHAIN_ID --keyring-backend=test
 ```
 
 ### Validator İsmini Değiştirme
 ```shell
-stchaind tx staking edit-validator 
---moniker=YENI_NODE_ADI 
---chain-id=$CHAIN_ID  
+stchaind tx staking edit-validator \
+--moniker=YENI_NODE_ADI \
+--chain-id=$CHAIN_ID \
+--keyring-backend=test \
 --from=$WALLET
 ```
 
 ### Validatoru Jail Durumundan Kurtarma 
 ```shell
-stchaind tx slashing unjail 
-  --broadcast-mode=block 
-  --from=$WALLET 
-  --chain-id=$CHAIN_ID  
-  --gas=auto
+stchaind tx slashing unjail \
+--broadcast-mode=block \
+--from=$WALLET \
+--chain-id=$CHAIN_ID \
+--keyring-backend=test \
+--gas=auto
+
 ```
 
 ### Node'u Tamamen Silme 
 ```shell
 sudo systemctl stop stchaind && 
 sudo systemctl disable stchaind && 
-rm etc/systemd/system/stride.service && 
+rm etc/systemd/system/stchaind.service && 
 systemctl daemon-reload && 
 cd $HOME && 
-rm -rf .stride stride && 
+rm -rf .stchaind stratos-chain && 
 rm -rf $(which stchaind)
 ```
 
